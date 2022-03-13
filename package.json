@@ -14,7 +14,8 @@
     "coverage": "nyc npm test",
     "///": "These are used by Travis to create coverage report. Run 'coverage' script first.",
     "ensure-coverage": "nyc check-coverage --statements 80 --branches 80 --functions 80",
-    "upload-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "upload-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "run-lebab": "node bin/index.js --replace /Users/turgaysaba/Desktop/projects/market-order-service/src --transform commonjs"
   },
   "engines": {
     "node": ">=6"
@@ -49,8 +50,8 @@
   "dependencies": {
     "commander": "^5.1.0",
     "escope": "^3.6.0",
-    "espree": "^6.2.1",
-    "estraverse": "^4.2.0",
+    "espree": "^9.3.1",
+    "estraverse": "^5.3.0",
     "f-matches": "^1.1.0",
     "glob": "^7.1.4",
     "lodash": "^4.17.11",

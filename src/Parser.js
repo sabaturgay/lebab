@@ -1,7 +1,7 @@
-import espree from 'espree';
+import * as espree from 'espree';
 
 const ESPREE_OPTS = {
-  ecmaVersion: 9,
+  ecmaVersion: 'latest',
   ecmaFeatures: {jsx: true},
   comment: true,
   tokens: true
