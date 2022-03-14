@@ -1,6 +1,6 @@
-const {exec, spawn} = require('child_process');
+const {exec,} = require('child_process');
 const path = require('path');
-const {parseArgsStringToArgv} = require('string-argv');
+// const {parseArgsStringToArgv} = require('string-argv');
 
 const SRC_PATH = '/Users/turgaysaba/Desktop/projects/debt-service/src';
 const APPLY_UNSAFE_TRANSFORMS = false;
@@ -44,7 +44,7 @@ const runCommand = (command, config) => {
   // console.log(' Ar', args)
   // const cmd = args.shift();
   // const ls = spawn(cmd, args, config);
-  const ls = exec(command, config)
+  const ls = exec(command, config);
   return new Promise((res) => {
     ls.stdout.on('data', (data) => {
       console.log(`stdout: ${data.toString()}`);
