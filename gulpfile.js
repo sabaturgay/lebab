@@ -1,8 +1,12 @@
-const {spawn} = require('child_process');
+const {exec, spawn} = require('child_process');
+const path = require('path');
+const {parseArgsStringToArgv} = require('string-argv');
 
 const SRC_PATH = '/Users/turgaysaba/Desktop/projects/debt-service/src';
-const APPLY_ONLY_SAFE_TRANSFORMS = false;
+const APPLY_UNSAFE_TRANSFORMS = false;
 const APPLY_TS_MIGRATE = true;
+const RUN_VISUALIZER = true;
+
 const SAFE_TRANSFORM_TYPES = [
   'arrow', // +  .......... callback to arrow function
   'arrow-return', // +  ... drop return statements in arrow functions
@@ -29,14 +33,18 @@ const UNSAFE_TRANSFORM_TYPES = [
 
 const TRANSFORM_TYPES = [
   ...SAFE_TRANSFORM_TYPES,
-  ...(APPLY_ONLY_SAFE_TRANSFORMS ? [] : UNSAFE_TRANSFORM_TYPES),
+  ...(APPLY_UNSAFE_TRANSFORMS ? UNSAFE_TRANSFORM_TYPES : []),
 ];
 
 const runSerial = (works) => works.reduce((acc, run) => acc.then(() => run()), Promise.resolve()); // initial
 
 const runCommand = (command, config) => {
-  const ls = spawn(command.split(' ')[0], command.split(' ').slice(1), config);
-
+  // const ls = spawn(command.split(' ')[0], command.split(' ').slice(1), config);
+  // const args = parseArgsStringToArgv(command);
+  // console.log(' Ar', args)
+  // const cmd = args.shift();
+  // const ls = spawn(cmd, args, config);
+  const ls = exec(command, config)
   return new Promise((res) => {
     ls.stdout.on('data', (data) => {
       console.log(`stdout: ${data.toString()}`);
@@ -72,10 +80,25 @@ async function runTsMigrate() {
   const works = commands.map((command) => () => runCommand(command, {cwd: SRC_PATH}));
   await runSerial(works);
 }
+
+async function runVisualizer() {
+  const commands = [
+    'depcruise --max-depth 2 --include-only \'^src\' --output-type dot src | dot -T svg > dependencygraph.svg',
+    'madge --image madge-graph.svg src',
+  ];
+  console.log('Generating visualizations');
+  console.log(' C', path.join(SRC_PATH, '..'));
+  const works = commands.map((command) => () => runCommand(command, {cwd: path.join(SRC_PATH, '..')}));
+  await runSerial(works);
+}
+
 async function asyncAwaitTask() {
-  await runLebab();
-  if (APPLY_TS_MIGRATE) {
-    await runTsMigrate();
+  // await runLebab();
+  // if (APPLY_TS_MIGRATE) {
+  //   await runTsMigrate();
+  // }
+  if (RUN_VISUALIZER) {
+    await runVisualizer();
   }
 }
 
