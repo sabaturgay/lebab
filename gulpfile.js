@@ -2,8 +2,8 @@ const {exec,} = require('child_process');
 const path = require('path');
 // const {parseArgsStringToArgv} = require('string-argv');
 
-const SRC_PATH = '/Users/turgaysaba/Desktop/projects/debt-service/src';
-const APPLY_UNSAFE_TRANSFORMS = false;
+const SRC_PATH = '/Users/turgaysaba/Desktop/projects/market-client-api-gateway/src';
+const APPLY_UNSAFE_TRANSFORMS = true;
 const APPLY_TS_MIGRATE = true;
 const RUN_VISUALIZER = true;
 
@@ -93,12 +93,12 @@ async function runVisualizer() {
 }
 
 async function asyncAwaitTask() {
-  // await runLebab();
-  // if (APPLY_TS_MIGRATE) {
-  //   await runTsMigrate();
-  // }
   if (RUN_VISUALIZER) {
     await runVisualizer();
+  }
+  await runLebab();
+  if (APPLY_TS_MIGRATE) {
+    await runTsMigrate();
   }
 }
 
