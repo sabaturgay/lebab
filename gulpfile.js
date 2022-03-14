@@ -1,8 +1,6 @@
-// const fs = require('fs');
-const {exec, spawn} = require('child_process');
+const {spawn} = require('child_process');
 
-const FILE_PATH = '/Users/turgaysaba/Desktop/projects/debt-service/src';
-const FOLDER_PATH = '/Users/turgaysaba/Desktop/projects/debt-service';
+const SRC_PATH = '/Users/turgaysaba/Desktop/projects/debt-service/src';
 const APPLY_ONLY_SAFE_TRANSFORMS = false;
 const APPLY_TS_MIGRATE = true;
 const SAFE_TRANSFORM_TYPES = [
@@ -36,53 +34,43 @@ const TRANSFORM_TYPES = [
 
 const runSerial = (works) => works.reduce((acc, run) => acc.then(() => run()), Promise.resolve()); // initial
 
-const runCommand = (command) => {
-  const ls = spawn(command.split(' ')[0], command.split(' ').slice(1));
+const runCommand = (command, config) => {
+  const ls = spawn(command.split(' ')[0], command.split(' ').slice(1), config);
 
-  ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data.toString()}`);
-  });
+  return new Promise((res) => {
+    ls.stdout.on('data', (data) => {
+      console.log(`stdout: ${data.toString()}`);
+    });
 
-  ls.stderr.on('data', (data) => {
-    console.log(`stderr: ${data.toString()}`);
-  });
+    ls.stderr.on('data', (data) => {
+      console.log(`stderr: ${data.toString()}`);
+    });
 
-  ls.on('exit', (code) => {
-    console.log(`child process exited with code ${code.toString()}`);
+    ls.on('exit', (code) => {
+      console.log(`child process exited with code ${code.toString()}`);
+      res(' ');
+    });
   });
 };
+
 async function runLebab() {
   // const {version} = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   const works = TRANSFORM_TYPES.map((transformType) => () => {
-    const command = `node bin/index.js --replace ${FILE_PATH} --transform ${transformType}`;
-    console.log(transformType);
-    return runCommand(command);
+    const command = `node bin/index.js --replace ${SRC_PATH} --transform ${transformType}`;
+    console.log(`Transform: ${transformType}`);
+    return runCommand(command, {cwd: process.cwd()});
   });
   await runSerial(works);
-  // await Promise.all(
-  //   )
-  // );
-  // await Promise.resolve('some result');
 }
 
 async function runTsMigrate() {
-  // const {version} = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   const commands = [
-    `cd ${FOLDER_PATH}`,
-    // 'ts-migrate init .',
+    'tsc --init',
     'ts-migrate rename .',
     'ts-migrate migrate .',
-    // 'eslint --fix',
   ];
-  const works = commands.map((command) => () => {
-    console.log(' A', command);
-    runCommand(command);
-  });
+  const works = commands.map((command) => () => runCommand(command, {cwd: SRC_PATH}));
   await runSerial(works);
-  // await Promise.all(
-  //   )
-  // );
-  // await Promise.resolve('some result');
 }
 async function asyncAwaitTask() {
   await runLebab();
