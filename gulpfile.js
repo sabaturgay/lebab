@@ -1,11 +1,12 @@
-const {exec,} = require('child_process');
+const {exec, } = require('child_process');
 const path = require('path');
 // const {parseArgsStringToArgv} = require('string-argv');
 
-const SRC_PATH = '/Users/turgaysaba/Desktop/projects/market-client-api-gateway/src';
+const SRC_PATH = '/Users/turgaysaba/Desktop/projects/market-order-service/src';
 const APPLY_UNSAFE_TRANSFORMS = true;
-const APPLY_TS_MIGRATE = true;
-const RUN_VISUALIZER = true;
+const APPLY_TS_MIGRATE = false;
+const RUN_VISUALIZER = false;
+const RUN_LEBAB = true;
 
 const SAFE_TRANSFORM_TYPES = [
   'arrow', // +  .......... callback to arrow function
@@ -24,10 +25,10 @@ const SAFE_TRANSFORM_TYPES = [
 const UNSAFE_TRANSFORM_TYPES = [
   'let', // +  ............ var to let/const
   'class', // +  .......... prototype assignments to class declaration
-  'commonjs', // +  ....... CommonJS module loading to import/export
+  // 'commonjs', // +  ....... CommonJS module loading to import/export
   'template', // +  ....... string concatenation to template string
   'default-param', // +  .. use of || to default parameters
-  'destruct-param', // +  . use destructuring for objects in function parameters
+  // 'destruct-param', // +  . use destructuring for objects in function parameters
   'includes', // +  ....... indexOf() != -1 to includes() (ES7)
 ];
 
@@ -69,6 +70,7 @@ async function runLebab() {
     return runCommand(command, {cwd: process.cwd()});
   });
   await runSerial(works);
+  runCommand('optional-chaining-codemod ./**/*.js --ignore-pattern="**/node_modules/**"', {cwd: SRC_PATH});
 }
 
 async function runTsMigrate() {
@@ -96,7 +98,9 @@ async function asyncAwaitTask() {
   if (RUN_VISUALIZER) {
     await runVisualizer();
   }
-  await runLebab();
+  if (RUN_LEBAB) {
+    await runLebab();
+  }
   if (APPLY_TS_MIGRATE) {
     await runTsMigrate();
   }
